@@ -4,7 +4,11 @@
 3. [Course Outline](#schema3)
 4. [AWS - Install and Configure CLI](#schema4)
 5. [Monolith vs. Microservices](#schema5)
-
+6. [Microservice Architecture Designs](#schema6)
+7. [Divide Into Microservices](#schema7)
+8. [Containers Using Docker](#schema8)
+9. [Introducing Containers](#schema9)
+10. [Docker](#schema10)
 
 <hr>
 <a name='schema1'></a>
@@ -104,3 +108,141 @@ https://github.com/Cloud-developer-aws/2-Full-Stack-Apps-on-AWS
 <a name='schema5'></a>
 
 ## 5. Monolith vs. Microservices
+
+- Microservices are an architectural style where an application is composed of modules that can be independently developed and deployed.
+- In monoliths, all the components of the application are built into a single application.
+
+**Microservice Benefits**
+- Scale Lean applications that are able to tailor their logic and infrastructure to their specific business needs. More-easily architected for horizontally scaling.
+- Development in Parallel Teams can develop and deploy their own codebases.
+- Cost-Effectiveness Utilize resources only for what is necessary for the specific microservice.
+- Flexibility Choose technologies that make the most sense for the team and business.
+
+
+<hr>
+<a name='schema6'></a>
+
+## 6. Microservice Architecture Designs
+
+**Properties of Microservices**
+
+- **Communication**
+  - Services communicate through a network
+  - REST is currently the most-commonly used network interface
+
+- **Independently Deployed**
+  - Deployment to one service should not affect another
+
+- **Fault tolerant**
+  - Diligence in writing code that can anticipate when another microservice isn’t working
+
+![](./img/key_terms.png)
+
+
+<hr>
+<a name='schema7'></a>
+
+## 7. Divide Into Microservices
+
+Divide a Monolith Application Into Microservices
+
+**Map Your Dependencies**
+- It's important to understand the application you're working with before breaking it apart.
+- One strategy is to map out the modules and their dependencies as a directed graph to understand the downstream impact of your changes.
+
+
+**Where to Start?**
+- There’s no hard rule: choose the part of the application that makes the most sense to you.
+- Dependency graph serves merely as a guideline on risk based on the number of dependencies.
+- A module with the least dependencies will potentially have the downstream effects meaning less risk.
+
+
+**How to Start?**
+- The Strangler pattern is a common and effective way to migrate legacy applications.
+- Rather than replacing your code with a new version, you can gradually replace components of your application.
+
+**Shared Code**
+- Code duplication can be abstracted into common libraries used across projects.
+
+
+![mono to micro](./img/m_to_micro.png)
+
+![](./img/key_terms_2.png)
+
+
+<hr>
+<a name='schema8'></a>
+
+## 8. Containers Using Docker
+
+**Why Use Containers?**
+
+**Your Code is Not a Black Box...Yet**
+- Applications often require many packages and dependencies to run properly
+- It’s common for an application to work on one computer but not another
+
+**Deployment Headaches**
+- Organizations often have different development environments. These often include development and production.
+- Deploying and testing the same code across different environments can be cumbersome
+- In practice, it’s difficult to keep a development and production environment perfectly synchronized with regards to their versions, operating systems, dependencies, etc.
+- It is common for code to work in a development environment and not behave as expected in production
+
+
+<hr>
+<a name='schema9'></a>
+
+## 9. Introducing Containers
+
+**Your Code is Now Kind of a Black Box**
+- Containers are self-contained applications with all the dependencies needed to run
+- Containers can be treated as one unit of deployment
+- Rolling back code with containers is simply re-deploying an older snapshot
+
+
+**Why Kind of?**
+- Containers make things easier but don’t magically make deployment problems disappear
+- Code may still work in one environment and fail in another, though now we have an understanding of what might have failed
+
+**Containers are Ephemeral**
+- Containers should be stateless and are expected to be destroyed.
+
+**Containers Help Manage Dependencies**
+- Each container can be running its own versioned software. We resolve the issue where different applications may have different dependencies.
+
+
+**Simplify Deployment**
+- Containers are self-contained so deployment is simply swapping out an existing container with a new one.
+
+
+<hr>
+<a name='schema10'></a>
+
+## 10. Docker
+
+**Docker Image**
+
+When we have an application that we want to deploy, we can package it into a Docker Image. The image contains all of your code and dependencies.
+
+**Docker Container**
+
+A Docker Container is an ephemeral running instance of a Docker Image.
+
+**Dockerfile**
+
+A Dockerfile defines the steps to create a Docker Image.
+
+
+
+**Basic Commands:**
+
+`docker build`  will run the Dockerfile to create an image
+
+`docker images` will print all the available images
+
+`docker run {IMAGE_ID}` will run a container with the image
+
+`docker ps` will print all the running containers
+
+`docker kill {CONTAINER_ID}` will terminate the container
+
+![docker](./img/key_terms_3.png)
