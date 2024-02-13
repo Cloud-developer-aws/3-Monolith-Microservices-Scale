@@ -235,7 +235,7 @@ A Dockerfile defines the steps to create a Docker Image.
 
 **Basic Commands:**
 
-`docker build`  will run the Dockerfile to create an image
+`docker build .`  will run the Dockerfile to create an image
 
 `docker images` will print all the available images
 
