@@ -9,6 +9,8 @@
 8. [Containers Using Docker](#schema8)
 9. [Introducing Containers](#schema9)
 10. [Docker](#schema10)
+11. [Debug a Container](#schema11)
+12. [Exercise: Debugging](#schema12)
 
 <hr>
 <a name='schema1'></a>
@@ -246,3 +248,101 @@ A Dockerfile defines the steps to create a Docker Image.
 `docker kill {CONTAINER_ID}` will terminate the container
 
 ![docker](./img/key_terms_3.png)
+
+
+
+<hr>
+<a name='schema11'></a>
+
+## 11. Debug a Container
+
+- Viewing Logs
+  - `docker logs {CONTAINER ID}`
+- Attaching to a Container
+  - `docker exec -it sh`
+- View Docker Processes
+  - `docker ps`
+- View Details of Docker Objects
+  - `docker inspect`
+
+https://docs.docker.com/engine/reference/commandline/container_logs/
+
+
+
+**Why might a container work in a local environment but not in a deployed environment?**
+- Docker is programming language agnostic so it doesn't matter which programming language you use
+- Security restrictions can cause problems because we often have to interface with other resources and the permission we use locally, may be different than in the deployed environment
+- System resouces are also important to ensure we have all of the resources that an application needs to run
+- Credentials can also be problematic as you deploy code from a local environment to a deployed environment
+
+
+<hr>
+<a name='schema12'></a>
+
+## 12. Exercise: Debugging
+
+Folder debugging-exercise
+
+
+- Build the Docker image:
+``` bash
+docker build -t debug_me .
+```
+- Check that the image has been build and access its IMAGE ID
+```bash
+docker images
+```
+- Run Docker container
+```bash
+docker run -d {IMAGE ID}
+```
+Using the -d flag runs the image in a container as a background task so the container we can continue to run other commands in our terminal.
+
+- View Docker Processes
+```bash
+  docker ps
+```
+- View Details of Docker Objects
+```bash
+docker inspect {CONTAINER ID}
+```
+
+- Viewing Logs
+``` bash
+docker logs {CONTAINER ID}
+```
+![debbug](./img/debbug.png)
+
+
+
+- Inspect the code in `server.js` and see that there is a typo -- should be getDate instead of getData
+
+- Fix the error, rebuild the Docker image and re-run it to confirm that the error has resolved.
+```bash
+
+docker build -t debug_me .  
+```
+```bash
+docker images 
+```
+```bash
+docker run -d  ID_image
+```
+```bash
+docker logs container_id
+```
+- Stop all containers
+```bash
+docker stop $(docker ps -q)
+
+```
+- Delete all containers
+```bash
+docker rm $(docker ps -aq)
+
+```
+
+- Delete image
+```bash
+docker rmi  ID_image
+```
