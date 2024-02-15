@@ -11,6 +11,11 @@
 10. [Docker](#schema10)
 11. [Debug a Container](#schema11)
 12. [Exercise: Debugging](#schema12)
+13. [Container Registries](#schema13)
+14. [Modifying Containers](#schema14)
+15. [Automating the Application Development Lifecycle - Why Use Deployment Pipelines?](#schema15)
+16. [CI/CD Benefits](#schema16)
+17. [Using Travis CI](#schema17)
 
 <hr>
 <a name='schema1'></a>
@@ -346,3 +351,128 @@ docker rm $(docker ps -aq)
 ```bash
 docker rmi  ID_image
 ```
+
+
+
+<hr>
+<a name='schema13'></a>
+
+
+## 13. Container Registries
+
+**Container Registries**
+- A container registry serves as a centralized place to store and version images.
+- [DockerHub](https://hub.docker.com/) is a popular container registry run by the same organization that created Docker.
+
+**Creating and Using a DockerHub Repository**
+1. In DockerHub, create a new repository and set it to Public
+
+2. In your terminal, login to DockerHub
+
+```bash
+docker login --username={YOUR USERNAME}
+```
+
+3. Tag your local image with the repository name:
+```bash
+docker tag {LOCAL IMAGE NAME} {USERNAME}/{REPOSITORY NAME}
+```
+4. Push the image to DockerHub
+```bash
+docker push {TAGGED IMAGE}
+```
+
+
+**Base Images**
+- Bundles the steps that are repeated in multiple builds into a pre-built package
+- Base images reduce time that it takes to run redundant operations
+- Uses the FROM keyword in Dockerfile, e.g. FROM node:13
+
+
+<hr>
+<a name='schema14'></a>
+
+## 14. Modifying Containers
+
+**Best Practices for Modifying Containers**
+- Docker images should be considered a single unit of deployment.
+- You shouldn't be editing code or making changes to the system at all in a container.
+- If something is broken, you build a new image and deploy that to a new container.
+
+```bash
+docker exec -it {Id_container} sh
+
+```
+Se utiliza para iniciar una sesión interactiva dentro de un contenedor Docker en ejecución y ejecutar el shell Bash (sh) dentro de ese contenedor. Esto es útil para realizar tareas de mantenimiento, depuración o exploración dentro del entorno del contenedor.
+Se pue usar por ejemplo `ls` para ver el listado de archivos de la carpeta
+
+- Modified error
+```bash
+vim server.js 
+```
+- Rebuilt image
+```bash
+
+docker build -t debug_me .  
+```
+
+
+<hr>
+<a name='schema15'></a>
+
+
+## 15. Automating the Application Development Lifecycle - Why Use Deployment Pipelines?
+
+### **Understanding Deployment Pipelines**
+- We now have industry standards and tools for how we can deploy our code.
+- Docker containers simplify what we deploy.
+- Deployment pipelines simplify how we deploy Docker containers.
+- Code is often deployed multiple times to different environments to validate functionality and minimize bugs.
+- Deployment pipelines enable us to have an automated process that is reliable and reproducible.
+
+![Enviroments](./img/enviroments.png)
+
+### **Deploying Code**
+
+Code After Coding
+Once your code is done, how do you ship it? Typically, the software development cycle will proceed with building the code, installing all of the dependencies, running automated tests, manually testing, and then repeating for each development environment the application needs to be deployed to.
+
+- It’s a common fallacy to underestimate the time it takes to deploy code
+- Teams deploying enterprise software often involves many internal and external dependencies that may include: infrastructure changes, security changes, permissions provisioning, load testing
+
+
+<hr>
+<a name='schema16'></a>
+
+## 16. CI/CD Benefits
+
+**Continuous Integration**
+Process in which code is tested, built into a Docker image, and deployed to a container registry.
+
+**Continuous Deployment**
+Process in which our Docker image is deployed to containers.
+
+**Additional Benefits**
+By streamlining our build and deploy to an automated process, developers are provided the least privilege that they need to write their code.
+
+
+CI/CD, que significa Integración Continua/Entrega Continua (Continuous Integration/Continuous Delivery), es una práctica de desarrollo de software que tiene como objetivo automatizar y mejorar el proceso de entrega de aplicaciones de software de manera rápida, frecuente y confiable.
+
+Aquí hay una breve explicación de cada parte:
+
+**Integración Continua (CI):** Es el proceso de integrar y validar el código nuevo o actualizado en un repositorio compartido de manera frecuente y automática. Esto implica la ejecución de pruebas automatizadas y la verificación de la calidad del código cada vez que se realizan cambios en el repositorio. La integración continua permite detectar y solucionar problemas de forma temprana en el ciclo de desarrollo, lo que ayuda a mantener una base de código estable y listo para la implementación.
+
+**Entrega Continua (CD):** Es el proceso de automatizar la entrega del software a un entorno de producción o de pruebas de manera consistente y confiable. Esto implica la automatización de la compilación, prueba, empaquetado y despliegue del software en un entorno controlado. La entrega continua permite a los equipos de desarrollo entregar cambios de manera rápida y segura a los usuarios finales, reduciendo el tiempo y el riesgo asociado con las implementaciones manuales.
+
+
+
+### **Why do non-technical individuals at a business care about using CI/CD?**
+- CI/CD allows for a tight feedback loop
+- Bugs are inevitable -- CI/CD helps us identify them in a deployed environment
+- CI/CD makes the pipeline more available
+
+
+<hr>
+<a name='schema17'></a>
+
+## 17. Using Travis CI
