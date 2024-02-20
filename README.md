@@ -584,6 +584,8 @@ yaml apiVersion: v1 kind: Service metadata: name: my-app labels: run: my-app spe
 
 2. Create a Node Group in AWS
 
+In Amazon EKS (Elastic Kubernetes Service), a "node group" is a set of EC2 instances (virtual machines) used to run your containerized applications and workloads in a Kubernetes cluster. When you create an EKS cluster in AWS, it's common for at least one node group to be automatically created so that you have nodes available to run your Kubernetes pods.
+
 
 
 ### **Creating a Kubernetes Cluster on AWS**
@@ -725,14 +727,38 @@ At this point, we have a Kubernetes cluster set up and understand how YAML files
 
 **Interacting With Your Cluster**
 1. [Install `kubectl`](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
+  ```bash
+  curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+  ```
+  ```bash
+  chmod +x ./kubectl
+  ```
+  ```bash
+  mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+
+  ```
 2. [Set up `aws-iam-authenticator`](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
 3. [Set up `kubeconfig`](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+
+
+**update the Kubernetes configuration (kubeconfig)**
+
+```bash
+aws eks --region us-east-1 update-kubeconfig --name PatriEKSCluster
+```
+is used to update the Kubernetes configuration (kubeconfig) on your local machine to connect to an Amazon EKS (Elastic Kubernetes Service) cluster.
+
+
+
+<span style="color:red">IMPORTANT! Your local settings should be the same as your online settings.</span>
+
+[Configure the AWS CLI](https://github.com/Cloud-developer-aws/2-Full-Stack-Apps-on-AWS?tab=readme-ov-file#schema3)
 
 
 **Loading YAML files**
 
 - `kubectl apply -` create deployment and service
-```
+```bash
 kubectl apply -f deployment.yaml
 ```
 
