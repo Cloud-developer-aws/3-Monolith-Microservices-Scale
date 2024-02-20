@@ -19,6 +19,8 @@
 18. [Exercise Using Travis CI](#schema18)
 19. [Environment Variables with Travis](#schema19)
 20. [Orchestration With Kubernetes](#schema20)
+21. [Kubernetes on AWS](#schema21)
+22. [Deploy Microservices With K8s](#schema22)
 
 <hr>
 <a name='schema1'></a>
@@ -552,3 +554,195 @@ Travis provides a way to set environment variables without having them exposed. 
   - Services are an abstraction of a set of pods to expose them through a network.
 
 ![](./img/key_terms_k8s.png)
+
+
+
+<hr>
+<a name='schema21'></a>
+
+
+## 21. Kubernetes on AWS
+
+### **Key Points**
+- AWS EKS is a service that we can use to set up Kubernetes.
+
+- The `deployment.yaml` file is used to specify how our pods should be created.
+
+- The `service.yaml` file is used to specify how our pods are exposed.
+
+**deployment.yaml** 
+```
+yaml apiVersion: apps/v1 kind: Deployment metadata: name: my-app labels: app: my-app spec: replicas: 2 selector: matchLabels: app: my-app template: metadata: labels: app: my-app spec: containers: - name: simple-node image: YOUR_DOCKER_HUB/simple-node ports: - containerPort: 80
+```
+
+**service.yaml**
+```
+yaml apiVersion: v1 kind: Service metadata: name: my-app labels: run: my-app spec: ports: - port: 80 protocol: TCP selector: run: my-app
+```
+
+1. Create a Kubernetes Cluster on AWS
+
+2. Create a Node Group in AWS
+
+
+
+### **Creating a Kubernetes Cluster on AWS**
+
+- **Step 1:** Create IAM Roles for the EKS Cluster and Node Group
+  - Create EKS Cluster IAM role:
+    1. Navigate to the Roles tab in the Identity and Access Management (IAM) dashboard in the AWS Console
+    2. Click Create role
+    3. Select type of trusted entity:
+        - Choose EKS as the use case
+        - Select EKS-Cluster
+        - Click Next: Permissions
+    4. Click Next: Tags
+    5. Click Next: Review
+        - Give the role a name, e.g. EKSClusterRole
+    6. Click Create role.
+
+You should see a message saying The role AWSServiceRoleForAmazonEKS has been created.
+
+  - Create EKS Cluster Node Group:
+    1. In the IAM Roles tab, click Create role
+    2.  Select type of trusted entity:
+        - Choose EC2 as the use case
+        - Select EC2
+        - Click Next: Permissions
+    3.  In Attach permissions policies, search for each of the following and check the box to the left of the policy to attach it to the role:
+        - AWS AmazonEC2ContainerRegistryReadOnly
+        - AmazonEKSWorkerNodePolicy
+        - AmazonEKS_CNI_Policy
+    4. Click Next: Tags
+    5. Click Next: Review
+        - Give the role a name, e.g. NodeRole
+    6. Click Create role.
+
+You should see a message saying The role AWSServiceRoleForAmazonEKSNodegroup has been created.
+
+  - **Step 2:** Create an SSH Pair
+    1. Navigate to the Key pairs tab in the EC2 Dashboard
+    2. Click Create key pair
+        - Give the key pair a name, e.g. mykeypair
+        - Select RSA and .pem
+    3. Click Create key pair.
+
+
+
+  - **Step 3:** Create an EKS Cluster
+    1. Navigate to the Clusters tab in Amazon EKS dashboard in the AWS Console
+    2. Click Create cluster
+    3. Specify:
+        - a unique Name (e.g. MyEKSCluster)
+        - Kubernetes Version (e.g. 1.21)
+        - Cluster Service Role (select the role you created above, e.g.EKSClusterRole)
+    4. Click Next
+    5. In Specify networking look for Cluster endpoint access, click the Public radio button
+    6. Click Next and Next
+    7. In Review and create, click Create
+
+It may take 5-15 minutes for the EKS cluster to be created.
+
+  - **Step 4:** Create a Node Group
+    1. Click on the Compute tab in the newly-created cluster
+    2. Click Add Node Group
+    3. Specify:
+        - a unique Name (e.g. MyNodeGroup)
+        - Cluster Service Role (select the role you created above, e.g.NodeRole)
+    4. Create and specify SSH key for node group
+    5. In Node Group compute configuration, set instance type to 8t3.micro and disk size to 4* to minimize costs
+    6. In Node Group scaling configuration, set the number of nodes to 2
+    7. Click Next
+    8. In Node Group network configuration, toggle on Configure SSH access to nodes
+        - Select the EC2 pair created above (e.g. mykeypair)
+        - Select All
+        - Click Next
+    9. Review the configuration and click "Create"
+
+
+
+  - **Step 5:** Delete Running Services
+  
+  <span style="color:red">IMPORTANT! Don't forget to delete services when you no longer need them.</span>
+
+
+These services will need to be deleted in order. Each step can take several minutes.
+
+1. Delete the Node Group
+2. Delete the EKS Cluster
+
+
+
+
+**Deployment YAML**
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: simple-api
+        image: <ECR_REPOSITORY>
+        ports:
+        - containerPort: 80
+```
+
+**Service YAML**
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+  labels:
+    run: my-app
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: my-app
+
+```
+
+<hr>
+<a name='schema22'></a>
+
+## 22. Deploy Microservices With K8s
+
+At this point, we have a Kubernetes cluster set up and understand how YAML files can be created to handle the deployment of pods and expose them to consumers. Moving forward, we’ll be using the Kubernetes command-line tool, kubectl, to interact with our cluster.
+
+**Interacting With Your Cluster**
+1. [Install `kubectl`](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
+2. [Set up `aws-iam-authenticator`](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
+3. [Set up `kubeconfig`](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
+
+
+**Loading YAML files**
+
+- `kubectl apply -` create deployment and service
+```
+kubectl apply -f deployment.yaml
+```
+
+**Introductory Commands**
+
+`kubectl` provides a wide range of commands to interact with Kubernetes. The following are some basic commands that we can use to interact with our current cluster.
+
+- `kubectl get pods` - show the pods in the cluster
+- `kubectl describe services` - show the services in the cluster
+- `kubectl cluster-info` - display information about the cluster
+
+
+![](./img/kubetcl.png)
