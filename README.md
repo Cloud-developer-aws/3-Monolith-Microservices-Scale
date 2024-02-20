@@ -16,6 +16,9 @@
 15. [Automating the Application Development Lifecycle - Why Use Deployment Pipelines?](#schema15)
 16. [CI/CD Benefits](#schema16)
 17. [Using Travis CI](#schema17)
+18. [Exercise Using Travis CI](#schema18)
+19. [Environment Variables with Travis](#schema19)
+20. [Orchestration With Kubernetes](#schema20)
 
 <hr>
 <a name='schema1'></a>
@@ -476,3 +479,76 @@ Aquí hay una breve explicación de cada parte:
 <a name='schema17'></a>
 
 ## 17. Using Travis CI
+
+**Using Travis for Continuous Integration**
+- Travis is a tool that helps us with the CI process
+- Travis integrates with your application using a YAML file
+- YAML files are often used to specify configurations.
+- Travis can be used to build and push images to DockerHub
+
+**YAML**
+YAML is similar to how JSON is also used as a representation of data but YAML is considered more readable.
+
+- YAML is generally suited for configuration files
+- YAML is generally suited for expressing data.
+
+When used as configurations, they are often interchangeable. The examples below show how a YAML file can be represented as JSON.
+
+**Travis File**
+The Travis file is always named `.travis.yml` and stored in the top-level of your git directory. This is detected by Travis CI and turned into a build pipeline.
+
+
+
+<hr>
+<a name='schema18'></a>
+
+## 18. Exercise Using Travis CI
+
+
+[Exercise  Travis](https://github.com/patri-carrasco/travis_ci)
+
+<hr>
+<a name='schema19'></a>
+
+
+## 19. Environment Variables with Travis
+**Environment Variables**
+
+Environment variables are a useful way to handle variables that shouldn’t be hard-coded into our application. These values are often credentials that shouldn’t be stored in the code.
+
+**Environment Variables with Travis**
+
+Travis provides a way to set environment variables without having them exposed. These values will be used during the Travis build process.
+
+- In your TravisCI dashboard, navigate to a repository
+- Navigate to the Settings screen
+- Set values in Environment Variables
+
+
+<hr>
+<a name='schema20'></a>
+
+## 20. Orchestration With Kubernetes
+
+### **Orchestration is the automated management of the lifecycle of our application**
+
+- With CI/CD, if Travis is our CI tool, then Kubernetes is our CD tool
+- Orchestration helps us handle complicated workflows in deploying our application
+- Helps us automate our deployment process for continuous deployment
+
+
+### **Fundamentals of Kubernetes**
+
+#### **Key Points**
+- Kubernetes
+  - A container orchestration system packed with features for automating our application’s deployment
+  - Enables us to easily scale our application and ship new code
+- Pods
+  - Containers often need to communicate with one another. It's not uncommon to see a deployment involving a few containers to be deployed.
+  - Kubernetes pods are abstractions of multiple containers and are also ephemeral.
+- Services
+  - Applications are often deployed with multiple replicas. This helps with load balancing and horizontal scaling.
+
+  - Services are an abstraction of a set of pods to expose them through a network.
+
+![](./img/key_terms_k8s.png)
