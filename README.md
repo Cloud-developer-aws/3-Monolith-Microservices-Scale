@@ -21,6 +21,8 @@
 20. [Orchestration With Kubernetes](#schema20)
 21. [Kubernetes on AWS](#schema21)
 22. [Deploy Microservices With K8s](#schema22)
+23. [Solution: Kubernetes Cluster](#schema23)
+24. [Alternative Deployment Strategies](#schema24)
 
 <hr>
 <a name='schema1'></a>
@@ -772,3 +774,60 @@ kubectl apply -f deployment.yaml
 
 
 ![](./img/kubetcl.png)
+
+<hr>
+<a name='schema23'></a>
+
+## 23. Solution: Kubernetes Cluster
+
+
+- Step 1: Deploy resources
+Send YAML files to Kubernetes to create resources. This will create the number of requested of the specified image:
+```bash
+kubectl apply -f deployment.yaml
+```
+and create the service:
+```bash
+kubectl apply -f service.yaml
+```
+- Step 2: Confirm deployment
+Verify that the resources have been created:
+```bash
+kubectl get pods
+```
+<span style="color:red">If the status remains <strong>pending,</strong> it is advisable to change the number of nodes in the node group.<span>
+
+
+
+and check to see that they were created correctly:
+```bash
+kubectl describe services
+```
+To get more metadata about the cluster, run:
+```bash
+kubectl cluster info dump
+```
+
+
+<hr>
+<a name='schema24'></a>
+
+## 24. Alternative Deployment Strategies
+
+Kubernetes is one solution for deploying your containers. It's packed with features but can sometimes be overwhelming. As we've mentioned before, choosing a tool comes with its own set of tradeoffs. Here are a few other popular technologies that are used in the industry today.
+
+- AWS ECS - AWS proprietary solution that predates AWS EKS. It integrates very well with other AWS tools and is a bit more straightforward as it is not as feature-packed as Kubernetes.
+- AWS Fargate - AWS tool that helps streamline deploying containers to ECS and EKS.
+- Docker - An option to simply run the container manually with Docker. Sometimes, it's tempting to pick a shiny hot tool that may lead to over-engineered architectures.
+
+
+
+
+
+
+
+mapUsers: |
+  - groups:
+    - system:masters
+    userarn: arn:aws:iam::998440938078:user/patri-k8s-admin
+    usernmae: patri-k8s-admin
