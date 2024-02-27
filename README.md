@@ -26,9 +26,7 @@
 25. [Reverse Proxy](#schema25)
 26. [Exercise kubernetes for production](#schema26)
 27. [Securing Microservices & Scaling and Self-Healing](#schema27)
-28. [<span style="color:red">Exercise:</span> Debugging logs](#schema28)
-28. <a style="color: blue;" href="#schema13">Container Registries</a>
-
+28. [Exercise: Debugging logs](#schema28)
 
 <hr>
 <a name='schema1'></a>
@@ -1001,6 +999,9 @@ Now we have a reverse proxy setup, and we can extend the nginx.config file to co
 
 ## 26. Exercise kubernetes for production
 
+[Exercise K8S](./kubernetes-for-production/)
+
+
 1.-  Add Dockerfile
 ```yaml
 # Use NodeJS base image
@@ -1191,3 +1192,33 @@ kubectl get hpa
 <a name='schema28'></a>
 
 ## 28. Debugging logs
+
+[Code Debbugin Logs](./debbuging-logs/)
+
+1.- Build the Docker Image
+```bash
+docker build -t {name_image} . 
+```
+2.- Run the Docker Image in a container
+```bash
+docker run {IMAGE_ID} 
+```
+3.- Other tab: Connect to the running Docker conatiner
+```bash
+docker exec -it <image_id> sh
+```
+4.- Run the script `make_requests.sh`
+
+5.- In tab docker run
+```bash
+2/27/2024, 3:45:27 PM: 85e40fb6-8d80-45b9-8731-d75c20305592 - User justin requested for resource
+2/27/2024, 3:45:28 PM: 9a9ad985-6506-4440-a528-0095417582b3 - User justin requested for resource
+2/27/2024, 3:45:29 PM: 7bacbb41-812a-4a40-9c15-8a988242558c - User justin requested for resource
+2/27/2024, 3:45:30 PM: b39c6a8c-264c-4068-a904-e11d5829c5ac - User justin requested for resource
+2/27/2024, 3:45:31 PM: 7bacbb41-812a-4a40-9c15-8a988242558c - Finished processing request for justin
+2/27/2024, 3:45:34 PM: 85e40fb6-8d80-45b9-8731-d75c20305592 - Finished processing request for justin
+2/27/2024, 3:45:37 PM: b39c6a8c-264c-4068-a904-e11d5829c5ac - Finished processing request for justin
+2/27/2024, 3:45:38 PM: 9a9ad985-6506-4440-a528-0095417582b3 - Finished processing request for justin
+```
+
+[Errors](https://knowledge.udacity.com/questions/300413)
