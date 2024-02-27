@@ -27,6 +27,8 @@
 26. [Exercise kubernetes for production](#schema26)
 27. [Securing Microservices & Scaling and Self-Healing](#schema27)
 28. [<span style="color:red">Exercise:</span> Debugging logs](#schema28)
+28. <a style="color: blue;" href="#schema13">Container Registries</a>
+
 
 <hr>
 <a name='schema1'></a>
