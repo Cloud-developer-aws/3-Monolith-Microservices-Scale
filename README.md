@@ -24,6 +24,7 @@
 23. [Solution: Kubernetes Cluster](#schema23)
 24. [Alternative Deployment Strategies](#schema24)
 25. [Reverse Proxy](#schema25)
+26. [Exercise kubernetes for production](#schema26)
 
 <hr>
 <a name='schema1'></a>
@@ -991,8 +992,10 @@ kubectl apply -f reverseproxy_service.yaml
 
 Now we have a reverse proxy setup, and we can extend the nginx.config file to connect to multiple pods and use the reverse proxy service act as a gateway for multiple pods.
 
+<hr>
+<a name='schema26'></a>
 
-**Exercise kubernetes-for-production**
+## 26.Exercise kubernetes for production
 
 1.-  Add Dockerfile
 ```yaml
