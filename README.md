@@ -23,6 +23,7 @@
 22. [Deploy Microservices With K8s](#schema22)
 23. [Solution: Kubernetes Cluster](#schema23)
 24. [Alternative Deployment Strategies](#schema24)
+25. [Reverse Proxy](#schema25)
 
 <hr>
 <a name='schema1'></a>
@@ -249,7 +250,7 @@ A Dockerfile defines the steps to create a Docker Image.
 
 **Basic Commands:**
 
-`docker build .`  will run the Dockerfile to create an image
+`docker build -t {name_image} .  `  will run the Dockerfile to create an image
 
 `docker images` will print all the available images
 
@@ -820,14 +821,275 @@ Kubernetes is one solution for deploying your containers. It's packed with featu
 - AWS Fargate - AWS tool that helps streamline deploying containers to ECS and EKS.
 - Docker - An option to simply run the container manually with Docker. Sometimes, it's tempting to pick a shiny hot tool that may lead to over-engineered architectures.
 
+<hr>
+<a name='schema25'></a>
+
+## 25. Reverse Proxy
+
+
+Un reverse proxy es un tipo de servidor proxy que toma las solicitudes de los clientes y las reenvía a uno o más servidores backend. A diferencia de un proxy tradicional que actúa como intermediario entre el cliente y el servidor, un reverse proxy se encuentra entre el cliente y uno o más servidores, actuando como intermediario para los servidores.
+
+El término "reverse" se refiere a la inversión del flujo normal de tráfico de red. En lugar de que el cliente se conecte directamente al servidor, el cliente se conecta al reverse proxy y luego el reverse proxy enruta la solicitud al servidor correspondiente, luego recibe la respuesta del servidor y la reenvía al cliente.
+
+Los reverse proxies se utilizan comúnmente para diversos propósitos, como:
+
+- Balanceo de carga: Distribuir las solicitudes entrantes entre varios servidores backend para mejorar el rendimiento y la disponibilidad del servicio.
+
+- Caché: Almacenar en caché contenido estático para servirlo rápidamente a los clientes y reducir la carga en los servidores backend.
+
+- Seguridad: Actuar como un punto de entrada seguro al entorno de backend, ocultando la estructura interna de la red y protegiendo los servidores backend de ataques directos.
+
+- Gestión de tráfico: Permitir la configuración de políticas de enrutamiento avanzadas, como redireccionamiento de URL, reescritura de encabezados y filtrado de solicitudes.
+
+
+
+**Reverse Proxy**
+- A single interface that forwards requests on behalf of the client and appears to the client as the origin of the responses.
+- Useful for abstracting multiple microservices to appear as a single resource.
+
+**API Gateway**
+- A form of a reverse proxy that serves as an abstraction of the interface to other services.
+
+
+**Sample Reverse Proxy**
+- Nginx is a web server that can be used as a reverse proxy. Configurations can be specified with an `nginx.conf` file.
+
+- Sample bare-bones `nginx.conf` file:
+
+```
+events {
+}
+http {
+    server {
+        listen <PORT_NUMBER>;
+        location /<PROXY_PATH>/ {
+            proxy_pass http://<REDIRECT_PATH>/;
+        }
+    }
+}
+```
+
+**Accessing an Endpoint in a Kubernetes Pod (The hard way!)**
+
+Let's look at the state of the Kubernetes pods and the services we can use to access them.
+
+First, let's look at the pods to see what is running:
+
+```bash
+kubectl get pods
+```
+and then look at services to find the entry point for accessing the pod:
+```bash
+kubectl describe services
+```
+
+In the output we can find this service Name: `my-app-2-svc` and see `Type: ClusterIP` which means that the service is only accessible within the cluster.
+
+We can connect to the pod using the `exec` command that we used earlier:
+```bash
+kubectl exec -it {POD NAME} -- bash
+```
+and use curl to access the endpoint:
+```bash
+curl http://my-app-2-svc:8080/health
+```
+and we get the `Hello!` response returned.
+
+
+**Accessing an Endpoint in a Kubernetes Pod using Reverse Proxy**
+
+The `Dockerfile` is pretty straightforward:
+- Base image from `nginx/alpinewhich` is useful for routing web requests
+- Service uses `nginx.conf`
+Dockerfile 
+
+```yaml
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/nginx.conf
+```
+The `nginx.conf` sets up the service to listen for the requests that come in to port 8080 and forward any requests to API endpoint to the `http://my-app-2-svc` endpoint in the app.
+
+`nginx.conf`
+```yaml
+events { } http { server { listen 8080; location /api/ { proxy_pass http://my-app-2-svc:8080/; } } }
+```
+The `deployment.yaml` file is also very similar to what you've seen so far:
+
+- Creates a single pod
+- Named reverseproxy
+- Configurations to limit resources
+
+`reverseproxy_deployment.yaml` 
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    service: reverseproxy
+  name: reverseproxy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: reverseproxy
+    spec:
+      containers:
+      - image: {Docker_Id}/simple-reverse-proxy
+        name: reverseproxy
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+
+
+```
+
+The `service.yaml` file is also straightforward.
+
+- The service is named `reverseproxy-svc`
+- Bound to port `8080`
+- Connects to the pods named `reverseproxy`
+
+`reverseproxy_service.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: reverseproxy
+  name: reverseproxy-svc
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    service: reverseproxy
+
+```
+
+
+**We're Ready to Deploy our Reverse Proxy!**
+
+The commands that we use to deploy the reverse proxy are the same as that used to deploy the application. kubectl is used as our tool to interface with our cluster and the YAML file specifies the configuration for our reverse proxy.
+```bash
+kubectl apply -f reverseproxy_deployment.yaml
+```
+```bash
+kubectl apply -f reverseproxy_service.yaml
+```
+
+Now we have a reverse proxy setup, and we can extend the nginx.config file to connect to multiple pods and use the reverse proxy service act as a gateway for multiple pods.
+
+
+**Exercise kubernetes-for-production**
+
+1.-  Add Dockerfile
+```yaml
+# Use NodeJS base image
+FROM node:13
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies by copying
+# package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy app source
+COPY . .
+
+# Bind the port that the image will run on
+EXPOSE 8080
+
+# Define the Docker image's behavior at runtime
+CMD ["node", "server.js"]
+
+```
+2.- Create `nginx.conf`
+```yaml
+events { } http { server { listen 8080; location /api/ { proxy_pass http://my-app-2-svc:8080/; } } }
+```
+3.- [`deployment.yaml`](./kubernetes-for-production/deploy/deployment.yaml)
+
+4.- [`service.yaml`](./kubernetes-for-production/deploy/service.yaml)
+
+5.- Create DockerImage `simple-express`
+
+6.- Deploy
+```bash
+kubectl apply -f deploy/deployment.yaml
+```
+```bash
+kubectl apply -f deploy/service.yaml
+```
+7.- Confirm deployment Verify that the resources have been created
+
+```bash
+kubectl get pods
+```
+```bash
+kubectl describe services
+```
+
+8.- `reverseproxy_deployment.yaml`
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    service: reverseproxy
+  name: reverseproxy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        service: reverseproxy
+    spec:
+      containers:
+      - image: patricarrasco/simple-express
+        name: reverseproxy
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+
+```
 
 
 
 
 
 
-mapUsers: |
-  - groups:
-    - system:masters
-    userarn: arn:aws:iam::998440938078:user/patri-k8s-admin
-    usernmae: patri-k8s-admin
+
+
+
+
+
+
+
+
+
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/nginx.conf
