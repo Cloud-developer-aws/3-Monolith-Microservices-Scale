@@ -10,21 +10,23 @@
 9. [Introducing Containers](#schema9)
 10. [Docker](#schema10)
 11. [Debug a Container](#schema11)
-12. [Exercise: Debugging](#schema12)
+12. [<span style="color:cyan">Exercise: Debugging</span>](#schema12)
 13. [Container Registries](#schema13)
 14. [Modifying Containers](#schema14)
 15. [Automating the Application Development Lifecycle - Why Use Deployment Pipelines?](#schema15)
 16. [CI/CD Benefits](#schema16)
 17. [Using Travis CI](#schema17)
-18. [Exercise Using Travis CI](#schema18)
+18. [<span style="color:cyan">Exercise Using Travis CI</span>](#schema18)
 19. [Environment Variables with Travis](#schema19)
 20. [Orchestration With Kubernetes](#schema20)
 21. [Kubernetes on AWS](#schema21)
 22. [Deploy Microservices With K8s](#schema22)
-23. [Solution: Kubernetes Cluster](#schema23)
+23. [<span style="color:cyan">Solution: Kubernetes Cluster</span>](#schema23)
 24. [Alternative Deployment Strategies](#schema24)
 25. [Reverse Proxy](#schema25)
-26. [Exercise kubernetes for production](#schema26)
+26. [<span style="color:cyan">Exercise kubernetes for production</span>](#schema26)
+27. [Securing Microservices & Scaling and Self-Healing](#schema27)
+28. [<span style="color:cyan">Exercise Debugging logs</span>](#schema28)
 
 <hr>
 <a name='schema1'></a>
@@ -995,7 +997,7 @@ Now we have a reverse proxy setup, and we can extend the nginx.config file to co
 <hr>
 <a name='schema26'></a>
 
-## 26.Exercise kubernetes for production
+## 26. Exercise kubernetes for production
 
 1.-  Add Dockerfile
 ```yaml
@@ -1146,8 +1148,44 @@ curl http://my-app-2-svc:8080/health
 
 ```
 
+<hr>
+<a name='schema27'></a>
+
+## 27. Securing Microservices & Scaling and Self-Healing
+
+**Securing Microservices**
+
+This is not an all-inclusive list of things to do for securing your application. It means that while some of these are best-practice, there's no guarantee that these steps will ensure your application is perfectly secure.
+
+- AWS security groups - enables you to restrict the inbound and outbound traffic for AWS resources.
+- Kubernetes Ingress and Egress - enables you to restrict the inbound and outbound traffic for Kubernetes resources.
+
+![](./img/key_terms_sec.png)
 
 
+### **Scaling and Self-Healing**
+
+**Self-Healing**
+
+Kubernetes deployments can be set up to recover from failure.
+
+- Health checks - an HTTP endpoint that must return a 200 response for a healthy status. Kubernetes will periodically ping this endpoint.
+- Replicas - Kubernetes will attempt to maintain the number of desired replicas. If a pod is terminated, it will automatically recreate the pod.
 
 
+**Horizontal Pod Autoscaler**
 
+- Create HPA
+```bash
+kubectl autoscale deployment <DEPLOYMENT_NAME> --cpu-percent=<DESIRED_THRESHOLD> --min=<MIN_PODS> --max=<MAX_PODS>
+```
+- View HPA
+```bash
+kubectl get hpa
+```
+
+
+<hr>
+<a name='schema28'></a>
+
+## 28. Debugging logs
