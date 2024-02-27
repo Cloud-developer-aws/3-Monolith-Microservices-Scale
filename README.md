@@ -1019,24 +1019,21 @@ EXPOSE 8080
 CMD ["node", "server.js"]
 
 ```
-2.- Create `nginx.conf`
-```yaml
-events { } http { server { listen 8080; location /api/ { proxy_pass http://my-app-2-svc:8080/; } } }
-```
-3.- [`deployment.yaml`](./kubernetes-for-production/deploy/deployment.yaml)
 
-4.- [`service.yaml`](./kubernetes-for-production/deploy/service.yaml)
+2.- [Create `deployment.yaml`](./kubernetes-for-production/deploy/deployment.yaml)
 
-5.- Create DockerImage `simple-express`
+3.- [Create `service.yaml`](./kubernetes-for-production/deploy/service.yaml)
 
-6.- Deploy
+4.- Create DockerImage `simple-express`
+
+5.- Deploy
 ```bash
 kubectl apply -f deploy/deployment.yaml
 ```
 ```bash
 kubectl apply -f deploy/service.yaml
 ```
-7.- Confirm deployment Verify that the resources have been created
+6.- Confirm deployment Verify that the resources have been created
 
 ```bash
 kubectl get pods
@@ -1045,9 +1042,30 @@ kubectl get pods
 kubectl describe services
 ```
 
-8.- `reverseproxy_deployment.yaml`
+7.- We can connect to the pod using the `exec` command that we used earlier:
+```bash
+kubectl exec -it {POD NAME} -- bash
+```
+and use curl to access the endpoint:
+```bash
+curl http://my-app-2-svc:8080/health
+```
+
+
+8.- Create `nginx.conf`
 ```yaml
-apiVersion: extensions/v1beta1
+events { } http { server { listen 8080; location /api/ { proxy_pass http://my-app-2-svc:8080/; } } }
+```
+9.- Modified `Dockerfile`
+```docker
+FROM nginx:alpine
+
+COPY nginx.conf /etc/nginx/nginx.conf
+```
+
+10.-  Create `reverseproxy_deployment.yaml`
+```yaml
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -1055,6 +1073,9 @@ metadata:
   name: reverseproxy
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: reverseproxy
   template:
     metadata:
       labels:
@@ -1073,7 +1094,52 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 8080
-      restartPolicy: Always
+
+
+```
+11.- Create `reverseproxy_service.yaml`
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: reverseproxy
+  name: reverseproxy-svc
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    service: reverseproxy
+
+```
+12.- Rebuild Docker images
+```bash
+docker build -t simple-express .
+
+docker tag simple-express patricarrasco/simple-express
+
+docker push patricarrasco/simple-express
+```
+
+
+13.- Deploy
+```bash
+kubectl apply -f reverseproxy_deployment.yaml
+```
+```bash
+kubectl apply -f reverseproxy_service.yaml
+```
+
+14.- Connect to the pod
+
+```bash
+kubectl exec -it {POD NAME} -- sh
+```
+and use curl to access the endpoint:
+```bash
+curl http://my-app-2-svc:8080/health
 
 ```
 
@@ -1082,14 +1148,3 @@ spec:
 
 
 
-
-
-
-
-
-
-
-
-
-FROM nginx:alpine
-COPY nginx.conf /etc/nginx/nginx.conf
