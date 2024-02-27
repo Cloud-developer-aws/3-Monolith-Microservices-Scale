@@ -10,7 +10,7 @@
 9. [Introducing Containers](#schema9)
 10. [Docker](#schema10)
 11. [Debug a Container](#schema11)
-12. [<span style="color:cyan">Exercise: Debugging</span>](#schema12)
+12. [<span style="color:rebeccapurple">Exercise: Debugging</span>](#schema12)
 13. [Container Registries](#schema13)
 14. [Modifying Containers](#schema14)
 15. [Automating the Application Development Lifecycle - Why Use Deployment Pipelines?](#schema15)
